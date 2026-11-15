@@ -1,0 +1,126 @@
+/* ════════════════════════════════════════════════════════════════
+   数墙（Nurikabe）—— 游戏专用皮肤
+   海与岛：水为深青，陆地为暖沙，数字是岛上的标记。
+   ════════════════════════════════════════════════════════════════ */
+
+:root {
+  --sk-water: #2b5563;
+  --sk-water-dark: #21434e;
+  --sk-land: #f4ead2;
+  --sk-land-warm: #f8f0dc;
+  --sk-empty: #fbf7ee;
+  --sk-board: #e9e1cf;
+  --sk-board-line: #d4cbb9;
+  --sk-ink: #263338;
+}
+
+.board-svg .sk-board-bg {
+  fill: var(--sk-board);
+  stroke: var(--sk-board-line);
+  stroke-width: 1.5;
+}
+
+.board-svg .sk-cell {
+  stroke: rgba(38, 51, 56, 0.1);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+.board-svg .sk-cell.empty {
+  fill: var(--sk-empty);
+}
+
+.board-svg .sk-cell.white {
+  fill: var(--sk-land);
+}
+
+.board-svg .sk-cell.white.clue {
+  fill: var(--sk-land-warm);
+}
+
+.board-svg .sk-cell.black {
+  fill: var(--sk-water);
+  stroke: rgba(255, 255, 255, 0.08);
+}
+
+.board-svg .sk-cell.black.clue {
+  fill: var(--sk-water-dark);
+}
+
+.board-svg .sk-cell.given {
+  stroke: rgba(38, 51, 56, 0.35);
+  stroke-width: 1.6;
+}
+
+.board-svg .sk-clue {
+  fill: var(--sk-ink);
+  font-family: var(--mono);
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.board-svg .sk-clue.on-black {
+  fill: #fffdf8;
+}
+
+.board-svg .sk-wave {
+  fill: none;
+  stroke: rgba(255, 253, 248, 0.22);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.board-svg .sk-block {
+  fill: rgba(194, 59, 46, 0.16);
+  stroke: var(--error);
+  stroke-width: 2.2;
+  pointer-events: none;
+}
+
+.board-svg .sk-error {
+  fill: rgba(194, 59, 46, 0.12);
+  stroke: var(--error);
+  stroke-width: 2.2;
+  stroke-dasharray: 5 3;
+  pointer-events: none;
+}
+
+.board-svg .cell-hit {
+  pointer-events: all;
+}
+
+.board-svg .cell-hit:hover {
+  fill: rgba(31, 111, 92, 0.16);
+}
+
+/* —— 自定义题板：数字色块 —— */
+.custom-cell.r1 {
+  background: hsl(150 32% 90%);
+}
+.custom-cell.r2 {
+  background: hsl(35 44% 90%);
+}
+.custom-cell.r3 {
+  background: hsl(210 36% 90%);
+}
+.custom-cell.r4 {
+  background: hsl(280 28% 91%);
+}
+.custom-cell.r5 {
+  background: hsl(0 36% 91%);
+}
+.custom-cell.r6 {
+  background: hsl(180 30% 89%);
+}
+.custom-cell.r7 {
+  background: hsl(60 36% 90%);
+}
+.custom-cell.r8 {
+  background: hsl(320 26% 91%);
+}
+.custom-cell.r9 {
+  background: hsl(105 26% 90%);
+}
