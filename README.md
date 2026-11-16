@@ -84,3 +84,41 @@ npm run check     # 审计题库
 npm run verify    # 参考解、逻辑回放与交互验证
 npm run audit     # 逐题审计逻辑解题
 ```
+
+## 图片识别导入
+
+用 Playwright + Edge 识别题面图片里的网格与数字线索，生成题库格式后预览 / 写入。
+
+```bash
+# 只识别 + 预览（会先求解出参考解，大图较慢）
+npm run import-image -- 题面.png
+
+# 只识别网格与线索
+npm run import-image -- 题面.png --dry
+
+# 求解并确认唯一解（35×35 这类大图可能超时，会给出警告）
+npm run import-image -- 题面.png --verify --timeout 300000
+
+# 追加到题库（写入 src/game/imported-puzzles.ts，npm run gen 不会覆盖）
+npm run import-image -- 题面.png --name "我的土派" --append
+```
+
+| 参数 | 说明 |
+|------|------|
+| `--name 名称` | 题库中显示的名称（默认「识图 · W×H」） |
+| `--series 系列` | 系列名（默认「图片导入」） |
+| `--difficulty 级别` | `easy` / `medium` / `hard` / `custom`（默认 `hard`） |
+| `--size N` | 正方形网格边长；默认自动识别 |
+| `--width N` / `--height N` | 非正方形题图的宽/高，可只给一边 |
+| `--map 行,列=数字串` | 人工覆盖某格线索（行列从 1 开始；每个字符是一段，如 `122` 表示 (1,2,2)，`0` 表示清空） |
+| `--append` | 写入 `src/game/imported-puzzles.ts` |
+| `--verify` | 唯一性检查（超时会警告，不阻断导入） |
+| `--dry` | 只识别网格与线索，不求解、不写入 |
+| `--timeout MS` / `--max-nodes N` | 求解时间 / 节点上限（默认 180000ms / 3000000，大图请放宽） |
+| `--edge PATH` | 指定 Edge 路径（默认自动探测） |
+
+识别流程：投影找网格线 → 每格 8 连通域得到数字字形 → 多套无衬线字体模板 IoU 匹配数字 → 按行/列排序得到线索顺序。
+Tapa 线索的「先后次序不分」，而本项目引擎从 N 起算的规范方向解释线索，所以导入时会先用循环语义解出一个解，
+再用解把每个线索旋转成规范方向；导入的题面与本项目求解器完全兼容。`types.ts` 的 `PATTERNS` 末尾补充了
+`6/7/8` 单段、四段 `(1,1,1,1)` 与旋转 `(2,1,2)`，以支持真实题图（追加在末尾，不影响已有题目编码）。
+
