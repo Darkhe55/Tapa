@@ -3,6 +3,14 @@
  *
  * 黑格必须连成一片；任意 2×2 不能全黑；
  * 数字格的 8 邻黑格连续段长度必须与数字模式一致。
+ *
+ * 规则分类（全部可证明，不猜、不回溯）：
+ *   clue    数字模式库：8 邻环上所有合法的黑格段组合（含边角/贴边变体），
+ *           取交集强制黑、取并集强制白；数字格必须为白
+ *   block   2×2 三黑 → 第四格必须是白；2×2 四黑 → 矛盾
+ *   connect 任一黑格连通块必须还有空格邻居，否则无法与其它黑格相连
+ *   reach   全局可达性：所有黑格必须落在同一个「非白」连通块里；
+ *           不含黑格的非白连通块（整块都是空格）未来只能全白，否则黑格会被白格隔断
  */
 
 import {
@@ -16,7 +24,7 @@ import {
   WHITE,
 } from './types.ts'
 
-export type RuleKind = 'clue' | 'block' | 'connect'
+export type RuleKind = 'clue' | 'block' | 'connect' | 'reach'
 
 export type SetCallback = (index: number, value: number, rule: RuleKind) => void
 
@@ -67,6 +75,37 @@ export function hasEmptyNeighbor(
   index: number,
 ): boolean {
   return neighborsOf(index, w, h).some((j) => cells[j] === EMPTY)
+}
+
+/** 非白（黑格或空格）的正交连通块，附带块内黑格数量 */
+function nonWhiteComponents(
+  cells: ArrayLike<number>,
+  w: number,
+  h: number,
+): Array<{ cells: number[]; black: number }> {
+  const n = w * h
+  const seen = new Uint8Array(n)
+  const out: Array<{ cells: number[]; black: number }> = []
+  for (let start = 0; start < n; start++) {
+    if (cells[start] === WHITE || seen[start]) continue
+    const comp: number[] = []
+    let black = 0
+    const stack = [start]
+    seen[start] = 1
+    while (stack.length) {
+      const i = stack.pop()!
+      comp.push(i)
+      if (cells[i] === BLACK) black++
+      for (const j of neighborsOf(i, w, h)) {
+        if (!seen[j] && cells[j] !== WHITE) {
+          seen[j] = 1
+          stack.push(j)
+        }
+      }
+    }
+    out.push({ cells: comp, black })
+  }
+  return out
 }
 
 export function initialGrid(clues: ArrayLike<number>, size: number): number[] {
@@ -168,6 +207,28 @@ export function propagate(
           }
         }
         if (!canConnect) return false
+      }
+    }
+
+    // 全局可达性：黑格必须落在同一个「非白」连通块；不含黑格的非白块只能全白
+    let hasBlack = false
+    for (let i = 0; i < n; i++) {
+      if (cells[i] === BLACK) {
+        hasBlack = true
+        break
+      }
+    }
+    if (hasBlack) {
+      const blocks = nonWhiteComponents(cells, w, h)
+      let blackBlocks = 0
+      for (const block of blocks) if (block.black > 0) blackBlocks++
+      if (blackBlocks > 1) return false
+      for (const block of blocks) {
+        if (block.black > 0) continue
+        // 整块都是空格且碰不到任何黑格：黑格放进来就永远连不回去 → 只能全白
+        for (const i of block.cells) {
+          if (!set(i, WHITE, 'reach')) return false
+        }
       }
     }
   }

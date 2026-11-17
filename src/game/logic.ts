@@ -8,11 +8,12 @@ import { propagate, type RuleKind } from './rules'
 import { asTapaPuzzle, asTapaState, BLACK, EMPTY, WHITE, type TapaState } from './types'
 
 const RULE_INFO: Record<RuleKind | 'probe' | 'search', { rule: number; label: string }> = {
-  clue: { rule: 1, label: '数字周围的黑段长度 / 数字格必须为白' },
+  clue: { rule: 1, label: '数字周围黑段模式（含边角变体）与数字格为白' },
   block: { rule: 2, label: '2×2 三黑 → 第四格必须是白格' },
-  connect: { rule: 3, label: '黑格必须连成一片' },
-  probe: { rule: 4, label: '反证：另一种颜色会立刻矛盾' },
-  search: { rule: 5, label: '回溯试探：该格最终是这一色' },
+  connect: { rule: 3, label: '黑格必须连成一片（连通块仍需空位）' },
+  reach: { rule: 4, label: '黑格全局可达：白格不能把黑格隔断' },
+  probe: { rule: 5, label: '反证：另一种颜色会立刻矛盾' },
+  search: { rule: 6, label: '回溯试探：该格最终是这一色' },
 }
 
 export function planLogicSolve(puzzle: Puzzle, initialState: GameState): LogicPlan {
