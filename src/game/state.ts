@@ -44,8 +44,8 @@ export function cycleValue(state: GameState, target: HitTarget): number {
   const given = s.givens[target.index] ?? EMPTY
   if (given !== EMPTY) return given
   const v = s.cells[target.index] ?? EMPTY
-  if (v === EMPTY) return BLACK
-  if (v === BLACK) return WHITE
+  // 左键：空/负面(白) → 正面(黑)；正面 → 空
+  if (v === EMPTY || v === WHITE) return BLACK
   return EMPTY
 }
 
@@ -53,7 +53,7 @@ export function rightClickValue(state: GameState, target: HitTarget): number {
   const s = asTapaState(state)
   const given = s.givens[target.index] ?? EMPTY
   if (given !== EMPTY) return given
-  return s.cells[target.index] === BLACK ? EMPTY : BLACK
+  return s.cells[target.index] === WHITE ? EMPTY : WHITE
 }
 
 export function applyMove(state: GameState, move: Move): void {
